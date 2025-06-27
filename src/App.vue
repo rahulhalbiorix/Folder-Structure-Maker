@@ -10,8 +10,8 @@
         </button>
         <div class="folder-container" v-if="isAddFolderToRoot">
           <span class="folder-icon">📁</span>
-          <input type="text" v-model="rootFolderName" /> {{ rootFolderName }}
-          <button class="save-btn" @click="addFolderToRoot">💾</button>
+          <input type="text" v-model="rootFolderName" @keyup.enter="addFolderToRoot" />
+          <button class="save-btn" @click="addFolderToRoot">✅</button>
           <button class="cancel-btn" @click="isAddFolderToRoot = false">❌</button>
         </div>
       </div>
@@ -33,19 +33,23 @@ const isAddFolderToRoot = ref<boolean>(false)
 
 const rootFolderName = ref('')
 
-console.log('root-folder-name', rootFolderName.value)
+// console.log('root-folder-name', rootFolderName.value)
 
 const folderData = store.folderData
 
-console.log(folderData)
+// console.log(folderData)
 
 function addFolderToRoot() {
-  store.addFolderToRoot({
-    _id: Date.now(),
-    type: 'folder',
-    value: rootFolderName.value,
-    children: [],
-  })
+  if (rootFolderName.value.trim() == '') {
+    alert('Please Enter Folder name')
+  } else {
+    store.addFolderToRoot({
+      _id: Date.now(),
+      type: 'folder',
+      value: rootFolderName.value,
+      children: [],
+    })
+  }
 
   isAddFolderToRoot.value = false
   rootFolderName.value = ''
@@ -61,17 +65,16 @@ header {
   margin: 10px;
 }
 main {
-  border: 2px solid red;
-  background-color: cornflowerblue;
   height: 85vh;
 }
 
 .add-folder-to-root {
   background-color: #000;
   color: #fff;
-  padding: 10px;
+  padding: 20px;
   border-radius: 4px;
   margin: 10px;
+  font-size: 20px;
 }
 
 .folder-container {
@@ -82,10 +85,12 @@ main {
   border-radius: 3px;
   width: fit-content;
   font-family: Arial, sans-serif;
+  padding: 10px;
+  border: 2px solid gray;
 }
 
 .folder-icon {
-  font-size: 1rem;
+  font-size: 1.5rem;
 }
 
 button {
@@ -96,6 +101,7 @@ button {
   cursor: pointer;
   transition: background-color 0.2s;
   border-radius: 50%;
+  font-size: x-large;
 }
 
 .save-btn:hover {
@@ -104,5 +110,11 @@ button {
 
 .cancel-btn:hover {
   background-color: #f8d7da;
+}
+
+input {
+  padding: 8px;
+  border: none;
+  border: 2px solid gray;
 }
 </style>

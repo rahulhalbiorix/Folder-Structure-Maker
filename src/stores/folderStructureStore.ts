@@ -2,59 +2,81 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 
 export const useFolderStructureStore = defineStore('foderStructure', () => {
-  const folderData = ref([
-    {
-      _id: '1',
-      value: 'src',
-      type: 'folder',
-      children: [
-        {
-          _id: '1-1',
-          value: 'index.css',
-          type: 'file',
-          children: [],
-        },
-        {
-          _id: '1-2',
-          value: 'assets',
-          type: 'folder',
-          children: [
-            {
-              _id: '1-2-1',
-              value: 'profile.png',
-              type: 'file',
-              children: [],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      _id: '2',
-      value: 'FileItem.vue',
-      type: 'file',
-      children: [],
-    },
-    {
-      _id: '685bfafb27e1258d2959d62a',
-      value: 'public',
-      type: 'folder',
-      children: [],
-    },
-  ])
+  const folderData = ref([])
 
   function addFolderToRoot(payload: any) {
-    console.log('🟢🟢🟢Add-Folder-to-root-is worked')
-    console.log('🟢Payload', payload)
     folderData.value.push(payload)
   }
 
-  // const doubleCount = computed(() => count.value * 2)
-  // function increment() {
-  //   count.value++
-  // }
+  function addFolder(payload: any) {
+    function insertIntoTree(tree: any[], ParentId: number) {
+      for (let node of tree) {
+        if (node._id == ParentId) {
+          node.children.push(payload)
 
-  // return { count, doubleCount, increment }
+          return true
+        }
 
-  return { folderData, addFolderToRoot }
+        if (node.children?.length > 0) {
+          const inserted = insertIntoTree(node.children, payload.ParentId)
+
+          if (inserted) return true
+        }
+      }
+      return false
+    }
+
+    const success = insertIntoTree(folderData.value, payload.ParentId)
+
+    if (!success) {
+      console.log('🔴🔴🔴Error')
+    }
+  }
+
+  function addFile(payload: any) {
+    function insertFileIntoTree(tree: any[], ParentId: number): boolean {
+      for (let node of tree) {
+        if (node._id == ParentId) {
+          if (!node.children) node.children = []
+          node.children.push(payload)
+          return true
+        }
+        if (node.children?.length > 0) {
+          const inserted = insertFileIntoTree(node.children, ParentId)
+          if (inserted) return true
+        }
+      }
+      return false
+    }
+
+    const success = insertFileIntoTree(folderData.value, payload.ParentId)
+    if (!success) {
+      console.log('❌')
+    }
+  }
+
+  function deleteFolder(payload: any): boolean {
+    function removechild(tree: any[], payload: number) {
+      for (let node of tree) {
+        if (node._id == payload) {
+          const findIndex = tree.findIndex((obj) => obj._id == payload)
+          tree.splice(findIndex, 1)
+          return true
+        }
+        if (node.children?.length > 0) {
+          const deleteChildNode = removechild(node.children, payload)
+          if (deleteChildNode) return true
+        }
+      }
+      return false
+    }
+
+    const success = removechild(folderData.value, payload)
+
+    if (!success) {
+      console.log(' ☠️☠️☠️ we are getting problem to delete data  ☠️☠️☠️')
+    }
+  }
+
+  return { folderData, addFolderToRoot, addFolder, addFile, deleteFolder }
 })
