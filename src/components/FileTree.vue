@@ -1,14 +1,16 @@
 <template>
   <ul>
     <li>
-      <div class="folder-design">
+      <div class="folder-design" @mouseenter="isHovering = true" @mouseleave="isHovering = false">
         <span v-if="items.type === 'folder'" class="folder-nod">
           📁 {{ items.value }}
-          <span>
-            <button class="addFolderBtn" @click="isAddFolderOrFileBtn = true">+</button>
-          </span>
-          <span>
-            <button class="deleteFolderBtn" @click="deleteFolderBtn(items._id)">-</button>
+          <span v-if="isHovering">
+            <span>
+              <button class="addFolderBtn" @click="isAddFolderOrFileBtn = true">+</button>
+            </span>
+            <span>
+              <button class="deleteFolderBtn" @click="deleteFolderBtn(items._id)">-</button>
+            </span>
           </span>
           <div v-if="isAddFolderOrFileBtn" class="add-file-folder-btn">
             <span
@@ -55,7 +57,9 @@
         </span>
         <span v-else class="file-node">
           📄 {{ items.value }}
-          <span><button class="deleteFileBtn" @click="deleteFolderBtn(items._id)">-</button></span>
+          <span v-if="isHovering"
+            ><button class="deleteFileBtn" @click="deleteFolderBtn(items._id)">-</button></span
+          >
         </span>
       </div>
       <div v-if="items.children?.length">
@@ -71,11 +75,11 @@
 import FileTree from '@/components/FileTree.vue'
 import { ref } from 'vue'
 import { useFolderStructureStore } from '@/stores/folderStructureStore'
+import type { BaseProperty } from '@/types'
 
-defineProps({
-  items: Object,
-  required: true,
-})
+defineProps<{
+  items: BaseProperty
+}>()
 
 const store = useFolderStructureStore()
 
@@ -85,6 +89,8 @@ const isAddFolder = ref(false)
 
 const fileName = ref('')
 const folderName = ref('')
+
+const isHovering = ref(false)
 
 function addFolders(parentid: number) {
   if (folderName.value.trim() == '') {
@@ -116,6 +122,7 @@ function addFile(parentid: number) {
       _id: Date.now(),
       type: 'file',
       value: fileName.value,
+      children: [],
     })
   }
   isAddFile.value = false

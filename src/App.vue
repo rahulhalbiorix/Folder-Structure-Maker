@@ -26,6 +26,7 @@
 import { ref } from 'vue'
 import { useFolderStructureStore } from './stores/folderStructureStore'
 import FileTree from '@/components/FileTree.vue'
+import type { BaseProperty } from '@/types'
 
 const store = useFolderStructureStore()
 
@@ -35,7 +36,7 @@ const rootFolderName = ref('')
 
 // console.log('root-folder-name', rootFolderName.value)
 
-const folderData = store.folderData
+const folderData: BaseProperty[] = store.folderData
 
 // console.log(folderData)
 
@@ -43,12 +44,14 @@ function addFolderToRoot() {
   if (rootFolderName.value.trim() == '') {
     alert('Please Enter Folder name')
   } else {
-    store.addFolderToRoot({
+    const newFolder: BaseProperty = {
       _id: Date.now(),
       type: 'folder',
       value: rootFolderName.value,
       children: [],
-    })
+    }
+
+    store.addFolderToRoot(newFolder)
   }
 
   isAddFolderToRoot.value = false

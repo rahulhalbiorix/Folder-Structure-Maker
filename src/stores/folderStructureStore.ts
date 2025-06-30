@@ -1,25 +1,25 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
+import type { BaseProperty } from '@/types'
 
 export const useFolderStructureStore = defineStore('foderStructure', () => {
-  const folderData = ref([])
+  const folderData = ref<BaseProperty[]>([])
 
-  function addFolderToRoot(payload: any) {
+  function addFolderToRoot(payload: BaseProperty): void {
     folderData.value.push(payload)
+    console.log('add Folder To Root', payload)
   }
 
-  function addFolder(payload: any) {
-    function insertIntoTree(tree: any[], ParentId: number) {
+  function addFolder(payload: { ParentId: number } & BaseProperty) {
+    function insertIntoTree(tree: BaseProperty[], ParentId: number) {
       for (let node of tree) {
         if (node._id == ParentId) {
           node.children.push(payload)
-
           return true
         }
 
         if (node.children?.length > 0) {
           const inserted = insertIntoTree(node.children, payload.ParentId)
-
           if (inserted) return true
         }
       }
@@ -33,8 +33,8 @@ export const useFolderStructureStore = defineStore('foderStructure', () => {
     }
   }
 
-  function addFile(payload: any) {
-    function insertFileIntoTree(tree: any[], ParentId: number): boolean {
+  function addFile(payload: { ParentId: number } & BaseProperty) {
+    function insertFileIntoTree(tree: BaseProperty[], ParentId: number): boolean {
       for (let node of tree) {
         if (node._id == ParentId) {
           if (!node.children) node.children = []
@@ -55,8 +55,8 @@ export const useFolderStructureStore = defineStore('foderStructure', () => {
     }
   }
 
-  function deleteFolder(payload: any): boolean {
-    function removechild(tree: any[], payload: number) {
+  function deleteFolder(payload: number): void {
+    function removechild(tree: BaseProperty[], payload: number): boolean {
       for (let node of tree) {
         if (node._id == payload) {
           const findIndex = tree.findIndex((obj) => obj._id == payload)
